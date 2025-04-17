@@ -1,3 +1,4 @@
+// public\js\main.js
 $(document).ready(function () {
 
     // REPRODUCCION DE VIDEO
@@ -329,7 +330,7 @@ $(document).ready(function () {
                                     <p style="font-size: 15px; color:rgb(75 174 79);" class="text-center">Toda la información del evento ha sido enviada al siguiente correo: <b>${response["Correo"]}</b></p>
                                 </div>
                                 <div class="col-12 d-flex justify-content-center">
-                                    <img alt="Código QR" id="codigo"> 
+                                    <img alt="Código QR" id="codigo">
                                     <p class="mt-4" style="font-size: 15px; color:rgb(75 174 79);">Por favor, toma captura del <b>Código QR</b> es tu pase al evento.</p>
                                 </div>
                                 <div class="col-12 d-flex justify-content-center">
@@ -345,24 +346,32 @@ $(document).ready(function () {
                     window.location.href = ruta;
                 });
 
-                // CREACION DEL CODIGO QR
-                const codigoElement = document.querySelector("#codigo");
-                var qr = new QRious({
-                    element: codigoElement,
-                    value: "https://amifit.mx/cliente/informacionUsuario/" + id,
-                    size: 200,
-                    backgroundAlpha: 1,
-                    foreground: "#3c3c3c",
-                    background: "white",
-                    foregroundAlpha: 1,
-                    level: "H",
-                });
+               // CREACION DEL CODIGO QR CON ID ENCRIPTADO
+            $.post(ruta + "/Home/encriptarId", { id: id }, function(res) {
+            const token = encodeURIComponent(res.token);
+            const qrUrl = `https://amifit.mx/cliente/informacionUsuario/${token}`;
 
-                var valorUrl = $("#codigo").attr("src");
-                console.log(valorUrl);
-                $('html, body').animate({
-                    scrollTop: $(".form-inputs").offset().top
-                }, 2000);
+            const codigoElement = document.querySelector("#codigo");
+            var qr = new QRious({
+                element: codigoElement,
+                value: qrUrl,
+                size: 200,
+                backgroundAlpha: 1,
+                foreground: "#3c3c3c",
+                background: "white",
+                foregroundAlpha: 1,
+                level: "H",
+                 });
+
+             //
+             var valorUrl = $("#codigo").attr("src");
+             console.log(valorUrl);
+             $('html, body').animate({
+                 scrollTop: $(".form-inputs").offset().top
+             }, 2000);
+
+            }, 'json');
+
 
                 // CREACION DE IMG DEL QR Y ENVIO DE CORREO
                 $.ajax({
@@ -672,7 +681,7 @@ $(document).ready(function () {
                         });
                     }
 
-                    // EL CUPON ALCANZO SU LIMITE MAXIMO 
+                    // EL CUPON ALCANZO SU LIMITE MAXIMO
                     if (response == 'CuponLleno') {
                         Swal.fire({
                             title: "Opss!",
@@ -842,7 +851,7 @@ $(document).ready(function () {
                     console.log(e);
                 }
             });
-           
+
         }
     });
 

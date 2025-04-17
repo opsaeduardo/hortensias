@@ -124,7 +124,7 @@ class Home extends BaseController
         }
     }
 
-    // METODO QUE VERIFICA EL LIMITE DE REGISTROS 
+    // METODO QUE VERIFICA EL LIMITE DE REGISTROS
     public function verificarLimiteRegistros()
     {
         $modelo = new participantes();
@@ -573,7 +573,7 @@ class Home extends BaseController
         return json_encode('afuera');
     }
 
-    // METODO QUE VERIFICA QUE LA KEYFOB SEA VALIDA 
+    // METODO QUE VERIFICA QUE LA KEYFOB SEA VALIDA
     public function validarKeyfob($keyFob)
     {
         $modelo = new participantes();
@@ -785,14 +785,14 @@ class Home extends BaseController
                     <img src="cid:purple_minimum" width="300px">
                 </div>
                 <div style="margin-top: 8px; color:#8B8B8B; font-size: 24px;">
-                    <strong>¡Hola!</strong> 
-                    <br> 
+                    <strong>¡Hola!</strong>
+                    <br>
                     <strong><i>¡Gracias por tú confianza!</i></strong>
                     <br>🙌
                     <br>
                     <strong>
                         ¡Tu generosidad demuestra que juntos podemos lograr grandes cosas!
-                    </strong> 
+                    </strong>
                     <br>
                     <br>
                         ¡Esperamos que disfrutes la experiencia y te sientas orgulloso de formar parte de esta noble causa!
@@ -800,7 +800,7 @@ class Home extends BaseController
                     <br>
                         Muestra este código <strong>QR</strong> para acceder a la competencia.<br>
                     <strong>
-                        ¡Gracias por correr con el corazón! 
+                        ¡Gracias por correr con el corazón!
                     </strong>
                     <br>❤️
                     <br>
@@ -855,7 +855,7 @@ class Home extends BaseController
             $mail->Body =
                 '<div align="center" style="font-family: Roboto-regular, Helvetica; color:#A3B4BB">
                     <div style="margin-top: 8px; color:#8B8B8B; font-size: 24px;">
-                        <strong>¡Se ha realizado un nuevo registro!</strong> 
+                        <strong>¡Se ha realizado un nuevo registro!</strong>
                         <br><br>
                     </div>
                     <div style="margin-top: 8px; color:#8B8B8B; font-size: 24px;">
@@ -932,7 +932,7 @@ class Home extends BaseController
                         <br>
                         <strong>¡Pronto recibirás más noticias para unirte al evento! 🚀</strong>
                         <br><br>
-                        <br>          
+                        <br>
                     </div>
                 </div>
             </div>';
@@ -1020,11 +1020,11 @@ class Home extends BaseController
                         <strong>¡Buena suerte en tu recorrido hacia la victoria! 🚀</strong>
                         <br><br>
                         <strong>¡Nos vemos en la línea de salida!</strong>
-                          
+
                     </div>
                 </div>
             </div>';
-           
+
             $mail->CharSet = 'UTF-8';
             $mail->send();
             $this->mandarCorreoAdmin($id, $infoRegistro["Nombre"], $infoRegistro["NumeroParticipante"], $infoRegistro["Categoria"]);
@@ -1040,4 +1040,13 @@ class Home extends BaseController
         $clientes = $model->getClientes();
         return json_encode($clientes);
     }
+
+    //QR Encriptar ID
+    public function encriptarId()
+{
+    $id = $this->request->getPost('id');
+    $encrypted = encryptId($id);
+    return $this->response->setJSON(['token' => $encrypted]);
+}
+
 }

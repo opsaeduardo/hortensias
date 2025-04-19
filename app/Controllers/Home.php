@@ -16,6 +16,10 @@ define('SECRET_IV', '7884588');
 
 class Home extends BaseController
 {
+    // 1) NUEVAS CONSTANTES PARA QR ENCRYPT:
+    private const ENCRYPTEQR_METHOD  = 'AES-256-CBC';
+    private const ENCRYPTEQR_SECRET_KEY = 'm1S3cret0QRP4r4ElCl13nt3';  // 32 caracteres exactos
+    private const ENCRYPTEQR_SECRET_IV  = 'ivSecretQRAqui16b'; // 16 caracteres exactos
 
     // DECLARACION DE MODULOS
     protected $moduloCupon = 'Cupones';
@@ -1041,12 +1045,29 @@ class Home extends BaseController
         return json_encode($clientes);
     }
 
-    //QR Encriptar ID
-    public function encriptarId()
-{
-    $id = $this->request->getPost('id');
-    $encrypted = encryptId($id);
-    return $this->response->setJSON(['token' => $encrypted]);
-}
+ // 2) MÉTODO PRIVADO PARA ENCRIPTAR
+ private function encryptId(string $id): string
+ {
+     $key = self::ENCRYPTEQR_SECRET_KEY;
+     $iv  = substr(hash('sha256', self::ENCRYPTEQR_SECRET_IV), 0, 16);
+     return openssl_encrypt($id, self::ENCRYPTEQR_METHOD, $key, 0, $iv);
+ }
+
+ // 3) MÉTODO PRIVADO PARA DESENCRIPTAR
+ private function decryptId(string $encryptedId): string
+ {
+     $key = self::ENCRYPTEQR_SECRET_KEY;
+     $iv  = substr(hash('sha256', self::ENCRYPTEQR_SECRET_IV), 0, 16);
+     return openssl_decrypt($encryptedId, self::ENCRYPTEQR_METHOD, $key, 0, $iv);
+ }
+
+ // 4) ENDPOINT AJAX QUE DEVUELVE EL TOKEN CIFRADO
+ public function encriptarId()
+ {
+     $id = $this->request->getPost('id');
+     $token = $this->encryptId($id);
+     return $this->response->setJSON(['token' => $token]);
+ }
+
 
 }

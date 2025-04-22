@@ -1,1 +1,5 @@
 .vscode/
+
+# Ignorar debugbar y logs
+writable/debugbar/
+writable/logs/

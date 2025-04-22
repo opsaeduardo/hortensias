@@ -1,4 +1,5 @@
 <?php  // app/Helpers/qr_helper.php
+namespace App\Helpers; 
 
 if (!function_exists('encrypt_qr_id')) {
     function encrypt_qr_id(string $id): string

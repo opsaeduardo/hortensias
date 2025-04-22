@@ -2,9 +2,12 @@
 
 namespace App\Controllers;
 
+use function App\Helpers\encrypt_qr_id;
+use function App\Helpers\decrypt_qr_id;
 use App\Models\participantes;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 
 require 'public/PHPMailer/Exception.php';
 require 'public/PHPMailer/PHPMailer.php';
@@ -635,7 +638,7 @@ class Home extends BaseController
         $modelo = new participantes();
 
         $url = $this->request->getVar('url');
-        $id = $this->request->getVar('id');
+        $id  = $this->resolveId($this->request->getVar('id'));
 
         $data = [
             'UrlPago' => $url,
@@ -652,7 +655,7 @@ class Home extends BaseController
     {
         $modelo = new participantes();
 
-        $idParticipante = $this->request->getVar('id');
+        $idParticipante = $this->resolveId($this->request->getVar('id'));
 
         $data = [
             'StatusPago' => 'Cancelado',
@@ -712,7 +715,7 @@ class Home extends BaseController
     // METODO QUE TRAE LA INFORMACION DEL PARTICIPANTE
     public function informacionRegistro()
     {
-        $idParticipante = $this->request->getVar('id');
+        $idParticipante = $this->resolveId($this->request->getVar('id'));
 
         $modelo = new participantes();
 
@@ -1056,6 +1059,22 @@ class Home extends BaseController
         return $this->response->setJSON(['token' => $token]);
     }
 
+    public function desencriptarId()
+    {
+        helper('qr');
+        $token = $this->request->getPost('token');
+        return $this->response->setJSON(['id' => decrypt_qr_id($token)]);
+    }
+
+    private function resolveId(string $raw): ?int
+    {
+        helper('qr');
+        if (ctype_digit($raw)) {
+            return (int) $raw;
+        }
+        $plain = decrypt_qr_id($raw);
+        return ctype_digit((string) $plain) ? (int) $plain : null;
+    }
 
 
 }

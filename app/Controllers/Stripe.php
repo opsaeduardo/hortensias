@@ -2,10 +2,13 @@
 
 namespace App\Controllers;
 
+use function App\Helpers\encrypt_qr_id;
+use function App\Helpers\decrypt_qr_id;
 use App\Controllers\BaseController;
 use App\Models\Participantes;
 use CodeIgniter\BaseModel;
 use Stripe\StripeClient;
+
 
 require 'vendor/autoload.php';
 
@@ -14,10 +17,12 @@ class Stripe extends BaseController
     public function createSession()
     {
 
-        $monto = $this->request->getVar('monto');
+        helper('qr');
 
         $id = $this->request->getVar('id');
+        $token  = encrypt_qr_id((string) $id);
         $tipoPago = $this->request->getVar('tipoPago');
+        $monto = $this->request->getVar('monto');
         // $gymId = $this->request->getVar('gymId');
         // $descripcion = $this->request->getVar('descripcion');
         // $correo = $this->request->getVar('correo');
@@ -49,7 +54,7 @@ class Stripe extends BaseController
             ]],
             'mode' => 'payment',
             'ui_mode' => 'embedded',
-            'return_url' => base_url() . "?StripePasarela_ID={CHECKOUT_SESSION_ID}&idSocio=$id",
+            'return_url' => base_url() . "?StripePasarela_ID={CHECKOUT_SESSION_ID}&idSocio={$token}",
             // 'return_url' => base_url() . "?StripePasarela_ID={CHECKOUT_SESSION_ID}&idSocio=$id&descripcion=$descripcion&correo=$correo&talla=$talla&edad=$edad",
             'metadata' => [
                 'id' => $id,
@@ -84,16 +89,18 @@ class Stripe extends BaseController
 
     public function createPaymentLink()
     {
+        helper('qr');
         $modeloParticipantes = new Participantes();
         $monto = $this->request->getVar('monto');
         $id = $this->request->getVar('id');
+        $token = encrypt_qr_id((string) $id);
 
         // Crear una instancia del cliente de Stripe
         $stripe = new StripeClient([
             "api_key" => env('SECRET_KEY'),
         ]);
 
-        
+
         $price = $stripe->prices->create([
             'unit_amount' => $monto,
             'currency' => 'mxn',
@@ -119,7 +126,7 @@ class Stripe extends BaseController
             'after_completion' => [
                 'type' => 'redirect',
                 'redirect' => [
-                    'url' => base_url("?idSocioLink=" . $id),
+                    'url' => base_url("?idSocioLink={$token}"),
                 ],
             ],
         ]);

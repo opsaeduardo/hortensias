@@ -1045,43 +1045,16 @@ class Home extends BaseController
         return json_encode($clientes);
     }
 
-// 2) ENCRIPTAR  ─────────────────────────────────────────────
-private function encryptId(string $id): string
-{
-    $key = self::ENCRYPTEQR_SECRET_KEY;
-    $iv  = substr(hash('sha256', self::ENCRYPTEQR_SECRET_IV), 0, 16);
-
-    $b64 = openssl_encrypt($id, self::ENCRYPTEQR_METHOD, $key, 0, $iv);
-
-    // convierte base64 → base64url  (+/  → -_   y sin “=”)
-    return rtrim(strtr($b64, '+/', '-_'), '=');
-}
-
-// 3) DESENCRIPTAR (base64url → base64 → texto plano) ───────
-private function decryptId(string $token): ?string
-{
-    $key = self::ENCRYPTEQR_SECRET_KEY;
-    $iv  = substr(hash('sha256', self::ENCRYPTEQR_SECRET_IV), 0, 16);
-
-    $token = strtr($token, '-_', '+/');
-    $pad   = 4 - (strlen($token) % 4);
-    if ($pad < 4) $token .= str_repeat('=', $pad);
-
-    $plain = openssl_decrypt($token, self::ENCRYPTEQR_METHOD, $key, 0, $iv);
-
-    return $plain === false ? null : $plain;
-}
 
 
- // 4) ENDPOINT AJAX QUE DEVUELVE EL TOKEN CIFRADO
-public function encriptarId()
-{
-    $id = $this->request->getPost('id');
-    log_message('info', "ENCRYPTEQR → recibí id a encriptar: {$id}");
-    $token = $this->encryptId($id);
-    log_message('info', "ENCRYPTEQR → token generado: {$token}");
-    return $this->response->setJSON(['token' => $token]);
-}
+
+    public function encriptarId()
+    {
+        helper('qr');
+        $id    = $this->request->getPost('id');
+        $token = encrypt_qr_id((string)$id);
+        return $this->response->setJSON(['token' => $token]);
+    }
 
 
 
